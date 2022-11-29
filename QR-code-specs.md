@@ -89,3 +89,45 @@ What every param means.
 ---
 
 This document is a WIP. Other types of transactions like legacy ones (pre-compiled ones with web3) and bundled transfers are yet to be added.
+
+## Verify wallet
+
+Get user wallet address:
+
+```
+{
+  "t": "ve",
+  "id": "00000a00-aaa0-00a0-0a00-00000a000000",
+  "pn": "Super DApp"
+}
+```
+
+### Explanation
+
+What every param means.
+* **"t"** is the type, **ve** for verification
+* **id** is (preferably) a UUIDv4 string.
+* **pn** dapp/project name to show in the DApp.
+
+### How to read the user address?
+Make a GET call to /verify-wallet on the Eyepto backend API with the param requestUUID.
+
+#### Example:
+Creating a new request for address verification:
+```
+curl -XPOST -H "Content-type: application/json" -d '{
+	"requestID": "00000a00-aaa0-00a0-0a00-00000a000000"
+}' 'https://api.eyepto.com/verify-wallet'
+```
+
+Requesting verification result (recommended interval, every 5 seconds):
+```
+curl -XGET 'https://api.eyepto.com/verify-wallet?requestID=00000a00-aaa0-00a0-0a00-00000a000000'
+```
+The user address (if verified), should be inside of the "data" object.
+
+### Signing a message for verification
+Signing a message for verifying ownership of the address is not supported yet and will be added later.
+### Note
+
+UUIDv4 are recommended for the request, altough any alphanumeric string is supported.[uuid](https://www.npmjs.com/package/uuid) is recommended for generating UUIDs.
