@@ -84,15 +84,11 @@ What every param means.
 
 ### Result QR code
 
-![QR code for value](./assets/qrcode-function-call.png)
-
----
-
-This document is a WIP. Other types of transactions like legacy ones (pre-compiled ones with web3) and bundled transfers are yet to be added.
+![QR code for smart contract call](./assets/qrcode-function-call.png)
 
 ## Verify wallet
 
-Get user wallet address:
+Get a user wallet address:
 
 ```
 {
@@ -106,28 +102,89 @@ Get user wallet address:
 
 What every param means.
 * **"t"** is the type, **ve** for verification
-* **id** is (preferably) a UUIDv4 string.
+* **id** is the request ID, preferably a UUIDv4 string.
 * **pn** dapp/project name to show in the DApp.
 
+### Result QR code
+
+![QR code for wallet verification](./assets/qr-code-basic-verification.png)
+
 ### How to read the user address?
-Make a GET call to /verify-wallet on the Eyepto backend API with the param requestUUID.
+Make a GET call to /verify-wallet on the Eyepto backend API with the param requestID.
 
 #### Example:
-Creating a new request for address verification:
+
+**1) Generate an ID to use for the verification, UUIDv4 are recommended, but any string shorter than 64 characters will do. This step can be done directly on the frontend of the DApp.**
+
 ```
-curl -XPOST -H "Content-type: application/json" -d '{
-	"requestID": "00000a00-aaa0-00a0-0a00-00000a000000"
-}' 'https://api.eyepto.com/verify-wallet'
+import { uuid } from 'uuidv4';
+const requestID = uuid();
 ```
 
-Requesting verification result (recommended interval, every 5 seconds):
+**(*Optional*) You can create a request for verification, this step while possible, is unnecessary unless you need it for some reason:**
+
 ```
-curl -XGET 'https://api.eyepto.com/verify-wallet?requestID=00000a00-aaa0-00a0-0a00-00000a000000'
+// Optional step, pre-populate request for verification
+const url = "https://api.eyepto.com/verify-wallet";
+const data = {
+	"requestID": "00000a00-aaa0-00a0-0a00-00000a000000"
+}
+
+const response = await fetch(url, {
+    method: "POST",
+    headers: {
+        "Content-Type": "application/json",
+    },
+    body: JSON.stringify(data),
+});
+
+// const res = response.json(); // if you need to read the response
 ```
-The user address (if verified), should be inside of the "data" object.
+
+**2) Display a QR code to the user containing the requestID you generated.**
+
+```
+import QRCode from "react-qr-code";
+
+const dataToQRify = {
+  "t": "ve",
+  "id": "00000a00-aaa0-00a0-0a00-00000a000000",
+  "pn": "Name of your DApp"
+}
+
+function SuperDAppComponent() {
+  return (
+    <QRCode style={{border: "white 10px solid"}} value={JSON.stringify(dataToQRify, null, 0)} />
+  )
+}
+```
+
+**3) Requesting verification result (recommended interval, every 5 seconds):**
+
+```
+const url = "https://api.eyepto.com/verify-wallet";
+
+const response = await fetch(url, {
+    method: "GET",
+});
+
+const verifRes = response.json(); // will contain the address
+```
+
+The user address (if verified), should be inside of the "data" object. 
+
+This call is meant to be made at a certain interval from the DApp frontend until a result address is found.
+
+From a UX perspective, if the user hasn't verified their wallet address after certain amount of time, you could just ask them to re-verify their address, perhaps with a newly generated requestID.
 
 ### Signing a message for verification
+
 Signing a message for verifying ownership of the address is not supported yet and will be added later.
+
 ### Note
 
-UUIDv4 are recommended for the request, altough any alphanumeric string is supported.[uuid](https://www.npmjs.com/package/uuid) is recommended for generating UUIDs.
+UUIDv4 are recommended for the request ID, altough any string under 64 characters is supported.[uuid](https://www.npmjs.com/package/uuid) is recommended for generating UUIDs.
+
+---
+
+This document is a WIP. Other types of transactions like legacy ones (pre-compiled ones with web3) and bundled transfers are yet to be added.
