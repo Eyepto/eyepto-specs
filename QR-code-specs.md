@@ -181,7 +181,6 @@ This call is meant to be made at a certain interval from the DApp frontend until
 
 From a UX perspective, if the user hasn't verified their wallet address after certain amount of time, you could just ask them to re-verify their address, perhaps with a newly generated requestID.
 
-
 ### Note
 
 UUIDv4 are recommended for the request ID, altough any string under 64 characters is supported.[uuid](https://www.npmjs.com/package/uuid) is recommended for generating UUIDs.
@@ -189,7 +188,7 @@ UUIDv4 are recommended for the request ID, altough any string under 64 character
 
 ### Signing a message for verification
 
-Signing a message for verifying ownership of the address is not supported yet and will be added later.
+Signing a message for verifying ownership of the wallet address is not supported yet and will be added later.
 ---
 
 This document is a WIP. Other types of transactions like legacy ones (pre-compiled ones with web3) and bundled transfers are yet to be added.
