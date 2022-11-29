@@ -166,7 +166,7 @@ function SuperDAppComponent() {
 **3) Requesting verification result (recommended interval, every 5 seconds):**
 
 ```
-const url = `https://api.eyepto.com/verify-wallet/requestID=${requestID}`;
+const url = `https://api.eyepto.com/verify-wallet?requestID=${requestID}`;
 
 const response = await fetch(url, {
     method: "GET",
