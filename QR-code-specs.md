@@ -127,7 +127,7 @@ const requestID = uuid();
 // Optional step, pre-populate request for verification
 const url = "https://api.eyepto.com/verify-wallet";
 const data = {
-	"requestID": "00000a00-aaa0-00a0-0a00-00000a000000"
+	"requestID": requestID
 }
 
 const response = await fetch(url, {
@@ -144,11 +144,15 @@ const response = await fetch(url, {
 **2) Display a QR code to the user containing the requestID you generated.**
 
 ```
+// import { uuid } from 'uuidv4';
+
 import QRCode from "react-qr-code";
+
+// const requestID = uuid();
 
 const dataToQRify = {
   "t": "ve",
-  "id": "00000a00-aaa0-00a0-0a00-00000a000000",
+  "id": requestID,
   "pn": "Name of your DApp"
 }
 
@@ -162,7 +166,7 @@ function SuperDAppComponent() {
 **3) Requesting verification result (recommended interval, every 5 seconds):**
 
 ```
-const url = "https://api.eyepto.com/verify-wallet";
+const url = `https://api.eyepto.com/verify-wallet/requestID=${requestID}`;
 
 const response = await fetch(url, {
     method: "GET",
