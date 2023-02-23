@@ -86,6 +86,125 @@ What every param means.
 
 ![QR code for smart contract call](./assets/qrcode-function-call.png)
 
+## Sequence of transactions
+
+Eyepto wallet users can send multiple, sequenced calls if you display a QR code in this format (they'll be called one after the other, and the user will only need to confirm them once):
+
+```
+{
+  "t": "ts",
+  "tl": [
+    {
+      "n": "1",
+      "t": "f",
+      "a": "123321",
+      "ta": "0x1112223330000000000000000000000000000000",
+      "d": {
+        "a": {
+          "constant": false,
+          "inputs": [
+            {
+              "name": "inputOne",
+              "type": "address"
+            },
+            {
+              "name": "otherInput",
+              "type": "uint256"
+            }
+          ],
+          "name": "methodName",
+          "outputs": [
+            {
+              "name": "",
+              "type": "uint256"
+            }
+          ],
+          "payable": true,
+          "stateMutability": "payable",
+          "type": "function"
+        },
+        "i": {
+          "inputOne": "0x1230000000000000000000000000000000000321",
+          "otherInput": "123"
+        }
+      }
+    },
+    ...
+  ]
+}
+```
+
+As you can see, you can mix networks and types. The formatting of the transactions inside of the array is the same as we've seen before. For now, only function and value types are accepted in transactions sequence.
+
+### Explanation
+
+What every param means.
+
+* **"t"** is the type, **st** for sequenced transactions.
+* **"tl"** contains an array of all the transactions.
+
+### QR code too large?
+
+If you need to call several transactions and the QR code is too big, you can use the following endpoint to store the transaction data and show only a QR code with the link to the user.
+
+## Storing a transaction
+
+You can store the transaction by making a POST call to /transactions, and showing the user the link as a QR code. 
+
+#### Example:
+
+**1) Generate an ID to use for the transaction, UUIDv4 are recommended, but any string shorter than 64 with url safe characters will do. This step can be done directly on the frontend of the DApp.**
+
+```
+import { uuid } from 'uuidv4';
+const transactionID = uuid();
+```
+
+**2) You can create a transaction as follow:**
+
+```
+const url = "https://api.eyepto.com/transactions";
+const transactionData = {
+  // Your transaction information here. Function, value, or lists are accepted ("t" = "f" or "v" or "tl")
+}
+
+const data = {
+	"transactionID": transactionID,
+  "transaction": transactionData
+}
+
+const response = await fetch(url, {
+    method: "POST",
+    headers: {
+        "Content-Type": "application/json",
+    },
+    body: JSON.stringify(data),
+});
+
+// const res = response.json(); // if you need to read the response
+```
+
+**3) Display a QR code to the user containing the transaction url you generated.**
+
+```
+// import { uuid } from 'uuidv4';
+
+import QRCode from "react-qr-code";
+
+// const transactionID = ..
+
+const urlToQRify = `https://api.eyepto.com/transactions?transactionID=${transactionID}`
+
+function SuperDAppComponent() {
+  return (
+    <QRCode style={{border: "white 10px solid"}} value={urlToQRify} />
+  )
+}
+```
+### Note:
+
+For now only eyepto.com urls are recognized by the mobile app, but other, potentially decentralized, options will be made available when all risks related to them are assessed.
+
 ## Verify wallet
 
 Get a user wallet address:
@@ -189,6 +308,7 @@ UUIDv4 are recommended for the request ID, altough any string under 64 character
 ### Signing a message for verification
 
 Signing a message for verifying ownership of the wallet address is not supported yet and will be added later.
+
 ---
 
 This document is a WIP. Other types of transactions like legacy ones (pre-compiled ones with web3) and bundled transfers are yet to be added.
